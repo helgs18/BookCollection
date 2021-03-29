@@ -20,27 +20,26 @@ class BookDetailsActivity : AppCompatActivity() {
         binding = ActivityBookDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //val receivedBook = intent.getParcelableExtra<Book>(EXTRA_BOOK_INFO)
-        val receivedBook = BookHolder.PickedBook
+        val receivedBook = intent.getParcelableExtra<Book>(EXTRA_BOOK_INFO)
+        //val receivedBook = BookHolder.PickedBook
 
         if(receivedBook != null){
             book = receivedBook
             Log.i("Details view", receivedBook.toString())
         } else{
-
-            setResult(RESULT_CANCELED, Intent(EXTRA_BOOK_INFO).apply {
-                // leg til info vi vil sende tilbake til Main
-            })
-
             finish()
+            return
         }
 
         binding.title.text = book.title
         binding.author.text = book.author
         binding.year.text = book.published.toString()
 
+    }
 
-
-
+    override fun onBackPressed() {
+        super.onBackPressed()
+        // For å sende ting til bake bruk setResult og intent. Husk å bruke samme tall som du brukte med startActivityForResult i MainActivity.
+        finish()
     }
 }

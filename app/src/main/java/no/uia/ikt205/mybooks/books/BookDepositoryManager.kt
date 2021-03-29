@@ -1,49 +1,55 @@
 package no.uia.ikt205.mybooks.books
 
 import android.content.Context
+import android.content.res.Resources
 import android.util.Log
 import com.android.volley.Request
-import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import no.uia.ikt205.mybooks.App
+import no.uia.ikt205.mybooks.R
 import no.uia.ikt205.mybooks.books.data.Book
+import no.uia.ikt205.mybooks.books.data.BookCollection
+
 
 class BookDepositoryManager {
 
-    private lateinit var bookColection: MutableList<Book>
-    private lateinit var queue: RequestQueue
-
+    private lateinit var bookCollection: BookCollection
     var onBooks: ((List<Book>) -> Unit)? = null
     var onBookUpdate: ((book: Book) -> Unit)? = null
 
+    val books:BookCollection
+        get() = this.bookCollection
 
-    fun load(url: String, context: Context) {
 
-      /*  queue = Volley.newRequestQueue(context)
+    fun load() {
 
-        val request = JsonArrayRequest(Request.Method.GET, url, null,
-            {
+        val context = App.context
 
-                // JSON -> transport formatet
-                // Gson -> Manipulering og serialisering av json
+        if(context != null) {
 
-                Log.d("BookDepositoryManager", it.toString(3))
-            },
-            {
+            val url = context.getString(R.string.book_listing_url)
+            val queue = Volley.newRequestQueue(context)
+
+            val request = StringRequest(Request.Method.GET,url, {
+                val gson = Gson()
+                val typeDef = object : TypeToken<List<Book>>() {}.type
+                val booksFromWeb = gson.fromJson<List<Book>>(it.toString(), typeDef)
+                bookCollection = BookCollection("My books",booksFromWeb)
+
+                onBooks?.invoke(bookCollection.books)
+
+            }, {
                 Log.e("BookDepositoryManager", it.toString())
+                onBooks?.invoke(bookCollection.books)
             })
 
-        queue.add(request)*/
-
-
-        bookColection = mutableListOf(
-            Book("Martha Wells", "All systems red", 2017),
-            Book("Neil Gaiman", "American Gods", 2011),
-            Book("Terry Pratchett", "The wee free men", 2003)
-        )
-
-        onBooks?.invoke(bookColection)
+            queue.add(request)
+        }
     }
 
     fun updateBook(book: Book) {
@@ -52,8 +58,8 @@ class BookDepositoryManager {
     }
 
     fun addBook(book: Book) {
-        bookColection.add(book)
-        onBooks?.invoke(bookColection)
+        bookCollection.addBook(book)
+        onBooks?.invoke(bookCollection.books)
     }
 
     companion object {

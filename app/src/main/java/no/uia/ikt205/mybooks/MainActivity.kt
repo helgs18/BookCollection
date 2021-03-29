@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.inputmethod.InputMethodManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.gson.Gson
+import kotlinx.coroutines.GlobalScope
 import no.uia.ikt205.mybooks.books.data.Book
 import no.uia.ikt205.mybooks.books.BookCollectionAdapter
 import no.uia.ikt205.mybooks.books.BookDepositoryManager
@@ -14,15 +16,12 @@ import no.uia.ikt205.mybooks.databinding.ActivityMainBinding
 
 
 const val EXTRA_BOOK_INFO: String = "no.uia.ikt205.mybooks.book.info"
-const val REQUEST_BOOK_DETAILS:Int = 564567
+
 
 class BookHolder{
-
     companion object{
         var PickedBook:Book? = null
     }
-
-
 }
 
 
@@ -43,7 +42,7 @@ class MainActivity : AppCompatActivity() {
             (binding.bookListing.adapter as BookCollectionAdapter).updateCollection(it)
         }
 
-        BookDepositoryManager.instance.load(getString(R.string.book_listing_url),this)
+        BookDepositoryManager.instance.load()
 
 
         binding.saveBt.setOnClickListener {
@@ -65,34 +64,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addBook(title: String, author: String, published: Int) {
-
-        val book = Book(title, author, published)
+        val book = Book(title, author, published, false)
         BookDepositoryManager.instance.addBook(book)
-
     }
 
 
     private fun onBookClicked(book: Book): Unit {
 
-        /*val intent =Intent(this, BookDetailsActivity::class.java).apply {
+        val intent = Intent(this, BookDetailsActivity::class.java).apply {
             putExtra(EXTRA_BOOK_INFO, book)
-        }*/
-
-        BookHolder.PickedBook = book
-
-        val intent =Intent(this, BookDetailsActivity::class.java)
+        }
 
         startActivity(intent)
-        //startActivityForResult(intent, REQUEST_BOOK_DETAILS)
+
+        //startActivityForResult(intent,25) // 25 er bare et random tall som du bestemmer deg for, det er for å gjenkjenne dette intentet senere.
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
-        if(requestCode == REQUEST_BOOK_DETAILS){
-
-        }
-
     }
 
 
